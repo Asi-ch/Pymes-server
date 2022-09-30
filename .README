@@ -1,0 +1,17 @@
+# README #
+
+This README would normally document whatever steps are necessary to get your application up and running.
+
+### What is this repository for? ###
+
+* Quick summary
+This is an exercise to create a node server application using typescript. I have used PostgresSQL database and Sequelize ORM.
+
+* Version
+1.0.0
+### How do I get set up? ###
+
+* Summary of set up
+Firstly install node modules. You must have node 14 or greater installed in your machine. use npm install command to download the required packages. Make database connection after a successful database connection run migrations using npx sequelize db:migrate. 
+* Database configuration
+Please install PGadmin and create a root user. You can then add credential in /config/database.json file for your database information.
