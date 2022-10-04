@@ -26,6 +26,15 @@ module.exports = {
         type: Sequelize.BOOLEAN,
         defaultValue: false
       },
+      activeStoreId: {
+      type: Sequelize.INTEGER,
+      },
+      activeSubscriptionId: {
+        type: Sequelize.STRING,
+      },
+      stripeCustomerId:{
+        type: Sequelize.STRING,
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE

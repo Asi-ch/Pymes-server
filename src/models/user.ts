@@ -1,7 +1,7 @@
 import Sequelize, { Model, DataTypes } from 'sequelize';
-import sequelize from '../../lib/sequelize';
-
+import sequelize from '../lib/sequelize';
 import bcrypt from 'bcrypt';
+import { UserType, Store, Subscription } from './';
 
 class User extends Model {
   public id!: number;
@@ -11,10 +11,48 @@ class User extends Model {
   public password: string;
   public passwordHash!: string;
   public emailVerified: boolean;
+  public activeStoreId: number;
   public fullName: string;
+  public stores: Store[];
+  public activeSubscriptionId: string;
+  public stripeCustomerId: string
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
+
+  async getAllAdminStores(): Promise<Store[] | null> {
+    const userType = await UserType.findOne({
+      where: {
+        name: "Admin"
+      }
+    });
+
+    const user = await User.findOne({
+      where: {
+        id: this.id
+      },
+      include: [
+        {
+          attributes: ['id', 'storeName', 'storeDescription', 'createdAt', 'updatedAt'],
+          model: Store,
+          as: 'Stores',
+          through: {
+            attributes: ['UserId', 'StoreId', 'UserTypeId', 'createdAt', 'updatedAt'],
+            where: {
+              UserTypeId: userType.id
+            }
+          },
+          include: [{
+            model: Subscription
+          }]
+        },
+
+      ]
+    })
+    return user.stores
+  }
+
 }
+
 
 User.init({
   email: {
@@ -58,6 +96,15 @@ User.init({
   emailVerified: {
     type: DataTypes.BOOLEAN
   },
+  activeStoreId: {
+    type: DataTypes.INTEGER
+  },
+  activeSubscriptionId: {
+    type: DataTypes.STRING
+  },
+  stripeCustomerId: {
+    type: DataTypes.STRING
+  }
 }, {
   sequelize,
 });

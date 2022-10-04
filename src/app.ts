@@ -1,12 +1,23 @@
 import cors from "cors";
 import * as express from "express";
 import fs from "fs";
-import ModelsInit from "./models"
+import ModelsInit, { User } from "./models"
+import { StoreRoutes } from "./routes/store";
 import { UserRoutes } from "./routes/user";
 // tslint:disable-next-line: no-var-requires
 require("dotenv").config();
 // adding custom Request global typing.
 
+declare global {
+  namespace Express {
+    interface Request {
+      userId: number;
+      storeId: number;
+      activeStoreId: number;
+      user: User;
+    }
+  }
+}
 
 class App {
   public app: express.Application;
@@ -34,6 +45,7 @@ class App {
 
   public routes(): void {
     this.app.use("/api/users", new UserRoutes().router)
+    this.app.use("/api/stores", new StoreRoutes().router)
   }
 }
 
