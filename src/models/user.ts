@@ -1,7 +1,7 @@
 import Sequelize, { Model, DataTypes } from 'sequelize';
 import sequelize from '../lib/sequelize';
 import bcrypt from 'bcrypt';
-import { UserType, Store, Subscription } from './';
+import { UserType, Store, Subscription, UserStore } from './';
 
 class User extends Model {
   public id!: number;
@@ -20,35 +20,67 @@ class User extends Model {
   public readonly updatedAt!: Date;
 
   async getAllAdminStores(): Promise<Store[] | null> {
-    const userType = await UserType.findOne({
-      where: {
-        name: "Admin"
-      }
-    });
-
-    const user = await User.findOne({
-      where: {
-        id: this.id
-      },
-      include: [
-        {
-          attributes: ['id', 'storeName', 'storeDescription', 'createdAt', 'updatedAt'],
-          model: Store,
-          as: 'Stores',
-          through: {
-            attributes: ['UserId', 'StoreId', 'UserTypeId', 'createdAt', 'updatedAt'],
-            where: {
-              UserTypeId: userType.id
-            }
-          },
-          include: [{
-            model: Subscription
-          }]
+    try {
+      const userType = await UserType.findOne({
+        where: {
+          name: "Admin"
+        }
+      });
+      console.log("User type ===> ", userType, "Id => ", this.id)
+      const user = await User.findOne({
+        where: {
+          id: this.id
         },
+        include: [
+          {
+            attributes: ['id', 'storeName', 'storeDescription', 'createdAt', 'updatedAt'],
+            model: Store,
+            as: 'stores',
+            through: {
+              attributes: ['UserId', 'StoreId', 'UserTypeId', 'createdAt', 'updatedAt'],
+              where: {
+                UserTypeId: userType.id
+              }
+            },
 
-      ]
+          },
+          Subscription
+        ]
+      })
+      return user.stores
+
+    } catch (error) {
+      console.log(error)
+      return []
+    }
+  }
+  async getSubscriptions(): Promise<Subscription[] | null> {
+    return await Subscription.findAll({
+      where: {
+        UserId: this.id
+      },
     })
-    return user.stores
+  }
+  async getActiveAdminStore(): Promise<UserStore | null> {
+    if (this.activeStoreId) {
+      const userType = await UserType.findOne({
+        where: {
+          name: "Admin"
+        }
+      });
+
+      const userStore = await UserStore.findOne({
+        where: {
+          StoreId: this.activeStoreId,
+          UserId: this.id,
+          UserTypeId: userType.id
+        },
+        include: [{ attributes: ['id', 'storeName', 'storeDescription', "createdAt", "updatedAt"], model: Store }]
+      })
+      return userStore;
+    } else {
+      return null;
+    }
   }
 
 }

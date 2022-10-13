@@ -108,4 +108,54 @@ export class StoreController {
       });
     }
   }
+  public async updateStore(req: Request, res: Response) {
+    try {
+      console.log("User id  =>", req.user, req.activeStoreId)
+
+
+
+    } catch (error) {
+
+      console.log("Error => ", error)
+      res.status(500).json({
+        success: false,
+        error,
+      });
+    }
+  }
+
+  public async setActiveStore(req: Request, res: Response) {
+    try {
+      console.log("User id  =>", req.user, req.userId)
+
+
+
+    } catch (error) {
+      console.log("Error => ", error)
+      res.status(500).json({
+        success: false,
+        error,
+      });
+    }
+  }
+  public async getAllAdminStores(req: Request, res: Response) {
+    try {
+      const user = req.user
+      const stores = await user.getAllAdminStores()
+
+      console.log("User id  =>", stores)
+      res.json({
+        success: true,
+        data: stores,
+      });
+
+
+    } catch (error) {
+      console.log("Error => ", error)
+      res.status(500).json({
+        success: false,
+        error,
+      });
+    }
+  }
 }

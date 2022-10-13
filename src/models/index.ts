@@ -19,7 +19,7 @@ export default () => {
   User.hasMany(Invitation);
   User.belongsToMany(Store, {
     through: "UserStore",
-    as: "Stores",
+    as: "stores",
     foreignKey: "UserId",
   });
   User.belongsToMany(UserType, {

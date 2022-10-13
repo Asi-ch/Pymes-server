@@ -5,7 +5,7 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { check, validationResult } from "express-validator";
 import stripe from "../../lib/stripe";
-import { Subscription, UserType } from "../../models";
+import { Subscription, UserStore, UserType } from "../../models";
 import Stripe from "stripe";
 
 export class UserController {
@@ -84,6 +84,14 @@ export class UserController {
             .not()
             .isEmpty()
             .withMessage("Card CVC can't be blank"),
+        ];
+      }
+      case "unSubscribe": {
+        return [
+          check("stripeSubscriptionId")
+            .not()
+            .isEmpty()
+            .withMessage("Card Holder Name can't be blank"),
         ];
       }
     }
@@ -254,6 +262,8 @@ export class UserController {
     }
   }
 
+
+
   public async createStripeCustomer(req: Request, res: Response) {
     try {
       const errors = validationResult(req);
@@ -313,6 +323,160 @@ export class UserController {
           }
         }
       }
+    } catch (errors) {
+      res.status(422).json({
+        success: false,
+        errors,
+      });
+    }
+  }
+
+  public async getIncomingInvoices(req: Request, res: Response) {
+    try {
+      const user = req.user;
+      const subscriptions = await user.getSubscriptions();
+      const subscriptionList = subscriptions.map(
+        (subscription) => subscription.stripeSubscriptionId
+      );
+
+      if (user.stripeCustomerId) {
+        const subscriptionDetails = await Promise.all(
+          subscriptionList.map(async (subscription: any) => {
+            return stripe.subscriptions
+              .retrieve(subscription)
+              .then((response: any) => response)
+              .catch((err: any) => null);
+          })
+        );
+
+        const data = subscriptionDetails.filter(
+          (subscriptionDetail) => subscriptionDetail
+        );
+
+        res.json({
+          success: true,
+          data,
+        });
+      } else {
+        res.json({
+          success: false,
+          errors: ["Stripe Customer Id doesn't exists"],
+        });
+      }
+    } catch (errors) {
+      res.status(422).json({
+        success: false,
+        errors,
+      });
+    }
+  }
+
+  public async getInvoicesHistory(req: Request, res: Response) {
+    try {
+      const user = req.user;
+      if (user.stripeCustomerId) {
+        const subscriptions = await user.getSubscriptions();
+        const subscriptionList = subscriptions.map(
+          (subscription) => subscription.stripeSubscriptionId
+        );
+        let history: any = [];
+        const invoices = await stripe.invoices.list({
+          customer: user.stripeCustomerId,
+          limit: 100,
+        });
+        if (invoices.data) {
+          history = invoices.data.filter((invoice: any) =>
+            subscriptionList.includes(invoice.subscription)
+          );
+        }
+        res.json({
+          success: true,
+          data: history,
+        });
+      } else {
+        res.json({
+          success: false,
+          errors: ["Stripe Customer Id doesn't exists"],
+        });
+      }
+    } catch (errors) {
+      res.status(422).json({
+        success: false,
+        errors,
+      });
+    }
+  }
+
+  public async unsubscribe(req: Request, res: Response) {
+    try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(422).json({ success: false, errors: errors.array() });
+      }
+
+      const user = await User.findOne({
+        where: {
+          id: req.userId,
+        },
+      });
+
+
+      if (user.stripeCustomerId) {
+        const subscription = await Subscription.findOne({
+          where: {
+            stripeSubscriptionId: req.body.stripeSubscriptionId,
+          },
+        });
+        if (subscription) {
+          await stripe.subscriptions.del(subscription.stripeSubscriptionId);
+
+          await Subscription.destroy({
+            where: {
+              UserId: req.userId,
+              stripeSubscriptionId: req.body.stripeSubscriptionId,
+            },
+          });
+
+          await user.update({
+            activeSubscriptionId: null
+          })
+
+          res.json({
+            success: true,
+            data: {
+              subscription: "Subscription has been cancelled.",
+            },
+          });
+        } else {
+          res.status(422).json({
+            success: false,
+            errors: ["Unable to find the subscription"],
+          });
+        }
+      } else {
+        res.status(422).json({
+          success: false,
+          errors: ["User doesn't have any valid stripe account"],
+        });
+      }
+
+
+    } catch (errors) {
+      res.status(422).json({
+        success: false,
+        errors,
+      });
+    }
+  }
+
+  public async subscriptions(req: Request, res: Response) {
+    try {
+      const user = req.user;
+      const subscriptions = await user.getSubscriptions();
+      res.json({
+        success: true,
+        data: subscriptions,
+      });
     } catch (errors) {
       res.status(422).json({
         success: false,
