@@ -4,13 +4,23 @@ import Invitation from "./invitation";
 import UserStore from "./userstore";
 import UserType from "./usertype";
 import Subscription from "./subscription";
+import Product from "./product";
+import VariationChoice from "./variationchoice";
+import VariationDimension from "./variationdimention";
+import Inventory from "./inventory";
+import ProductVariation from "./productvariation";
 export {
   User,
   Store,
   Invitation,
   UserType,
   UserStore,
-  Subscription
+  Subscription,
+  Product,
+  VariationDimension,
+  VariationChoice,
+  Inventory,
+  ProductVariation
 }
 
 export default () => {
@@ -44,4 +54,38 @@ export default () => {
     as: "user_types",
     foreignKey: "StoreId",
   });
+  Store.hasMany(Inventory)
+
+
+  //Product Associations
+  ProductVariation.hasMany(Product);
+
+  Product.belongsToMany(VariationChoice, {
+    through: "ProductVariation",
+    as: "variation_choices",
+    foreignKey: "ProductId",
+  })
+  Product.belongsToMany(VariationDimension, {
+    through: "ProductVariation",
+    as: "variation_dimensions",
+    foreignKey: "ProductId",
+  })
+
+  //VariationChoice Associations
+  VariationChoice.belongsToMany(VariationDimension, {
+    through: "ProductVariation",
+    as: "dimensions",
+    foreignKey: "VariationChoiceId",
+  })
+  VariationChoice.belongsToMany(Product, {
+    through: "ProductVariation",
+    as: "products",
+    foreignKey: "VariationChoiceId",
+  })
+
+  //Inventory Associations
+  Inventory.hasMany(ProductVariation)
+  Inventory.belongsTo(Store)
+
+
 }

@@ -1,14 +1,16 @@
 'use strict';
+
+/** @type {import('sequelize-cli').Migration} */
 module.exports = {
-  up: async (queryInterface, Sequelize) => {
-    return queryInterface.createTable('UserTypes', {
+  up:async  (queryInterface, Sequelize) => {
+    return queryInterface.createTable('VariationChoices', {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      name: {
+      choice: {
         type: Sequelize.STRING,
         allowNull: false
       },
@@ -23,6 +25,6 @@ module.exports = {
     });
   },
   down: async (queryInterface, Sequelize) => {
-    return queryInterface.dropTable('UserTypes');
+    return queryInterface.dropTable('VariationChoices');
   }
 };

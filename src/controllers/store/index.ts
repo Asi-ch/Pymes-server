@@ -7,7 +7,11 @@ export class StoreController {
     switch (method) {
       case "createStore": {
         return [
-          check("storeName")
+          check("name")
+            .not()
+            .isEmpty()
+            .withMessage("Store name is required"),
+          check("location")
             .not()
             .isEmpty()
             .withMessage("Store name is required"),
@@ -25,8 +29,9 @@ export class StoreController {
       }
 
       let store = await Store.create({
-        storeName: req.body.storeName,
-        storeDescription: req.body.storeDescription
+        name: req.body.name,
+        description: req.body.description,
+        location: req.body.location
       })
       if (store) {
 

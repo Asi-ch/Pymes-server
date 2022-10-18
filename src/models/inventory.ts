@@ -1,26 +1,25 @@
-import Sequelize, { Model, DataTypes } from 'sequelize';
+import { Model, DataTypes } from 'sequelize';
 import sequelize from '../lib/sequelize';
-import { Inventory, User } from '.';
+import ProductVariation from './productvariation';
 
 
-class Store extends Model {
+class Inventory extends Model {
   public id!: number;
-  public name!: string;
-  public description: string;
-  public location: string;
-  public users: User[];
-  public inventory: Inventory[];
+  public StoreId: string;
+  public quantity: number;
+  public cost: number;
+  public ProductVariations: ProductVariation[]
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
 }
 
-Store.init({
+Inventory.init({
   name: {
     type: DataTypes.STRING,
     allowNull: false,
     validate: {
       notEmpty: {
-        msg: 'Store Name is required.'
+        msg: 'Inventory Name is required.'
       },
     }
   },
@@ -32,4 +31,4 @@ Store.init({
   sequelize,
 });
 
-export default Store;
+export default Inventory;

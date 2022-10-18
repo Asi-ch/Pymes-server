@@ -33,7 +33,7 @@ class User extends Model {
         },
         include: [
           {
-            attributes: ['id', 'storeName', 'storeDescription', 'createdAt', 'updatedAt'],
+            attributes: ['id', 'name', 'description', 'createdAt', 'updatedAt'],
             model: Store,
             as: 'stores',
             through: {
@@ -75,7 +75,7 @@ class User extends Model {
           UserId: this.id,
           UserTypeId: userType.id
         },
-        include: [{ attributes: ['id', 'storeName', 'storeDescription', "createdAt", "updatedAt"], model: Store }]
+        include: [{ attributes: ['id', 'name', 'description', "createdAt", "updatedAt"], model: Store }]
       })
       return userStore;
     } else {

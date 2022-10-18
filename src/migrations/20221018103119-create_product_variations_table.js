@@ -1,43 +1,58 @@
 'use strict';
+
+/** @type {import('sequelize-cli').Migration} */
 module.exports = {
-  up: async (queryInterface, Sequelize) => {
-    return queryInterface.createTable('UserStores', {
+  up:async  (queryInterface, Sequelize) => {
+    return queryInterface.createTable('ProductVariations', {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      UserId: {
+      ProductId: {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
-          model: 'Users',
+          model: 'Products',
           key: 'id'
         },
         onUpdate: 'cascade',
         onDelete: 'cascade'
       },
-      StoreId: {
+      VariationChoiceId: {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
-          model: 'Stores',
+          model: 'VariationChoices',
           key: 'id'
         },
         onUpdate: 'cascade',
         onDelete: 'cascade'
       },
-      
-      UserTypeId: {
+      VariationDimensionId: {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
-          model: 'UserTypes',
+          model: 'VariationDimensions',
           key: 'id'
         },
         onUpdate: 'cascade',
         onDelete: 'cascade'
+      },
+      InventoryId: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        references: {
+          model: 'Inventory',
+          key: 'id'
+        },
+        onUpdate: 'cascade',
+        onDelete: 'cascade'
+      },
+      value:{
+        type:Sequelize.STRING,
+        allowNull: false,
       },
       createdAt: {
         allowNull: false,
@@ -50,6 +65,6 @@ module.exports = {
     });
   },
   down: async (queryInterface, Sequelize) => {
-    return queryInterface.dropTable('UserStores');
+    return queryInterface.dropTable('ProductVariations');
   }
 };
