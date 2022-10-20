@@ -2,6 +2,7 @@ import cors from "cors";
 import * as express from "express";
 import fs from "fs";
 import ModelsInit, { User } from "./models"
+import { ProductRoutes } from "./routes/product";
 import { StoreRoutes } from "./routes/store";
 import { UserRoutes } from "./routes/user";
 // tslint:disable-next-line: no-var-requires
@@ -46,6 +47,8 @@ class App {
   public routes(): void {
     this.app.use("/api/users", new UserRoutes().router)
     this.app.use("/api/stores", new StoreRoutes().router)
+    this.app.use("/api/products", new ProductRoutes().router)
+
   }
 }
 

@@ -1,32 +1,40 @@
 import { DataTypes, Model } from 'sequelize';
 import sequelize from '../lib/sequelize';
-import { Product } from './';
+import { Product, } from './';
 
 class ProductVariation extends Model {
   public id!: number;
-  public ProductId!: number;
-  public VariationChoiceId!: number;
-  public VariationDimensionId!: number;
-  public InventoryId!: number;
-  public value: string;
-  public products: Product[];
+  public ProductId!: Product;
+  public size!: string;
+  public color!: string;
+  public cost!: number;
+  public quantity!: number;
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
 }
 
 ProductVariation.init({
-  UserId: {
+  ProductId: {
     type: DataTypes.INTEGER,
     allowNull: false,
   },
-  StoreId: {
+  size: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
+  color: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
+  cost: {
     type: DataTypes.INTEGER,
     allowNull: false,
   },
-  UserTypeId: {
+  quantity: {
     type: DataTypes.INTEGER,
     allowNull: false,
-  },
+
+  }
 }, {
   sequelize,
 });

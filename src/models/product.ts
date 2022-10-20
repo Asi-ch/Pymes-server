@@ -1,13 +1,14 @@
 import { Model, DataTypes } from 'sequelize';
+import { ProductVariation, Store } from '.';
 import sequelize from '../lib/sequelize';
-import { VariationChoice } from '.';
 
 
 class Product extends Model {
   public id!: number;
   public name!: string;
   public description: string;
-  public variation_choices: VariationChoice[];
+  public productVariations: ProductVariation[];
+  public StoreId: Store;
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
 }
@@ -26,6 +27,10 @@ Product.init({
     type: DataTypes.STRING,
     allowNull: false,
   },
+  StoreId: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+  }
 }, {
   sequelize,
 });

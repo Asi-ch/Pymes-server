@@ -17,6 +17,16 @@ module.exports = {
       description: {
         type: Sequelize.STRING
       },
+      StoreId: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        references: {
+          model: 'Stores',
+          key: 'id'
+        },
+        onUpdate: 'cascade',
+        onDelete: 'cascade'
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE

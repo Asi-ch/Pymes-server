@@ -20,38 +20,21 @@ module.exports = {
         onUpdate: 'cascade',
         onDelete: 'cascade'
       },
-      VariationChoiceId: {
-        type: Sequelize.INTEGER,
-        allowNull: false,
-        references: {
-          model: 'VariationChoices',
-          key: 'id'
-        },
-        onUpdate: 'cascade',
-        onDelete: 'cascade'
-      },
-      VariationDimensionId: {
-        type: Sequelize.INTEGER,
-        allowNull: false,
-        references: {
-          model: 'VariationDimensions',
-          key: 'id'
-        },
-        onUpdate: 'cascade',
-        onDelete: 'cascade'
-      },
-      InventoryId: {
-        type: Sequelize.INTEGER,
-        allowNull: false,
-        references: {
-          model: 'Inventory',
-          key: 'id'
-        },
-        onUpdate: 'cascade',
-        onDelete: 'cascade'
-      },
-      value:{
+     
+      size:{
         type:Sequelize.STRING,
+        allowNull: true,
+      },
+      color:{
+        type:Sequelize.STRING,
+        allowNull: true,
+      },
+      quantity:{
+        type:Sequelize.INTEGER,
+        allowNull: false,
+      },
+      cost:{
+        type:Sequelize.INTEGER,
         allowNull: false,
       },
       createdAt: {

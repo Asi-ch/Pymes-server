@@ -14,7 +14,7 @@ export class StoreController {
           check("location")
             .not()
             .isEmpty()
-            .withMessage("Store name is required"),
+            .withMessage("Store location is required"),
         ];
       }
 
