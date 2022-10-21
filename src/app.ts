@@ -2,6 +2,7 @@ import cors from "cors";
 import * as express from "express";
 import fs from "fs";
 import ModelsInit, { User } from "./models"
+import { CategoryRoutes } from "./routes/category";
 import { ProductRoutes } from "./routes/product";
 import { StoreRoutes } from "./routes/store";
 import { UserRoutes } from "./routes/user";
@@ -48,6 +49,7 @@ class App {
     this.app.use("/api/users", new UserRoutes().router)
     this.app.use("/api/stores", new StoreRoutes().router)
     this.app.use("/api/products", new ProductRoutes().router)
+    this.app.use("/api/category", new CategoryRoutes().router)
 
   }
 }

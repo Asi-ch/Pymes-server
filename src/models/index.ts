@@ -6,6 +6,7 @@ import UserType from "./usertype";
 import Subscription from "./subscription";
 import Product from "./product";
 import ProductVariation from "./productvariation";
+import Category from "./category";
 export {
   User,
   Store,
@@ -14,7 +15,8 @@ export {
   UserStore,
   Subscription,
   Product,
-  ProductVariation
+  ProductVariation,
+  Category
 }
 
 export default () => {
@@ -53,9 +55,9 @@ export default () => {
 
   //Product Associations
   Product.hasMany(ProductVariation)
-
-  //VariationChoice Associations
-
-
+  Product.belongsTo(Category)
+  Product.belongsTo(Store)
+  //Category Associations
+  Category.hasMany(Product)
 
 }
