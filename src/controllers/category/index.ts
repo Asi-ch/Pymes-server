@@ -1,6 +1,6 @@
 import { check, validationResult } from "express-validator";
 import { Request, Response } from "express";
-import { Category } from "../../models";
+import { Category, Product } from "../../models";
 export class CategoryController {
   public validate(method: string) {
     switch (method) {
@@ -24,7 +24,8 @@ export class CategoryController {
       }
 
       const category = await Category.create({
-        name: req.body.name
+        name: req.body.name,
+        StoreId: req.user.activeStoreId
       })
 
       if (category) {
@@ -40,6 +41,29 @@ export class CategoryController {
         success: false,
         error,
       });
+    }
+  }
+
+  public async getAll(req: Request, res: Response) {
+    try {
+      const category = await Category.findAll({ where: { StoreId: req.user.activeStoreId }, include: [Product] })
+      return res.status(200).json({ success: true, category: category })
+    } catch (error) {
+
+    }
+  }
+
+  public async getAllProductByCategory(req: Request, res: Response) {
+    try {
+      if (!req.body.categoryId) return res.status(404).json({ success: false, msg: "Category Id is Required" })
+      const category = await Category.findAll({ where: { id: req.body.categoryId }, include: [Product] })
+      console.log("\n\n\n\n\n\n\n\n\n Category ===> ", category)
+
+      if (category) {
+        return res.status(200).json({ success: true, data: category })
+      }
+    } catch (error) {
+
     }
   }
 

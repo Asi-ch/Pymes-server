@@ -87,7 +87,8 @@ export class ProductsController {
       const product = await Product.create({
         name: req.body.name,
         description: req.body.description,
-        StoreId: req.user.activeStoreId
+        StoreId: req.user.activeStoreId,
+        CategoryId: req.body.categoryId,
       })
 
       if (req.body.productVariation && product) {
@@ -154,6 +155,7 @@ export class ProductsController {
         await product.update({
           name: req.body.name,
           description: req.body.description,
+          CategoryId: req.body.categoryId,
         })
         return res.status(200).json({ success: true, data: product })
       } else {

@@ -14,5 +14,8 @@ export class CategoryRoutes {
 
   public routes() {
     this.router.post("/create", authMiddleware, this.categoryController.validate('create'), this.categoryController.create);
+    this.router.get("/all", authMiddleware, this.categoryController.getAll);
+    this.router.post("/all-products", authMiddleware, this.categoryController.getAllProductByCategory)
+
   }
 }

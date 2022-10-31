@@ -51,7 +51,7 @@ export default () => {
     foreignKey: "StoreId",
   });
   Store.hasMany(Product)
-
+  Store.hasMany(Category)
 
   //Product Associations
   Product.hasMany(ProductVariation)
@@ -59,5 +59,7 @@ export default () => {
   Product.belongsTo(Store)
   //Category Associations
   Category.hasMany(Product)
+  Category.belongsTo(Store)
+  ProductVariation.belongsTo(Product)
 
 }
