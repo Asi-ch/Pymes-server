@@ -7,6 +7,16 @@ import Subscription from "./subscription";
 import Product from "./product";
 import ProductVariation from "./productvariation";
 import Category from "./category";
+import Client from "./client";
+import StoreProfile from "./storeProfile";
+import Address from "./address";
+import Quotation from "./quotation";
+import ClientAddress from "./clientAddress";
+import StoreAddress from "./storeAddress";
+import Attachment from "./attachment";
+import TransportDetail from "./transportDetail";
+import ContactDetail from "./contactDetail";
+import Item from "./item";
 export {
   User,
   Store,
@@ -16,7 +26,17 @@ export {
   Subscription,
   Product,
   ProductVariation,
-  Category
+  Category,
+  Client,
+  StoreProfile,
+  Address,
+  Quotation,
+  ClientAddress,
+  StoreAddress,
+  Attachment,
+  TransportDetail,
+  ContactDetail,
+  Item,
 }
 
 export default () => {
@@ -52,6 +72,7 @@ export default () => {
   });
   Store.hasMany(Product)
   Store.hasMany(Category)
+  Store.hasMany(Client)
 
   //Product Associations
   Product.hasMany(ProductVariation)
@@ -62,4 +83,22 @@ export default () => {
   Category.belongsTo(Store)
   ProductVariation.belongsTo(Product)
 
+
+  Client.belongsToMany(Address, {
+    through: "ClientAddresses",
+    as: "addresses",
+    foreignKey: "ClientId"
+  })
+
+
+  // Store.hasMany(Quotation)
+
+  // Quotation.belongsTo(Store)
+  // Quotation.belongsTo(Client)
+
+  Store.belongsToMany(Address, {
+    through: "StoreAddresses",
+    as: "addresses",
+    foreignKey: "StoreId"
+  })
 }
