@@ -1,20 +1,20 @@
 import Sequelize, { Model, DataTypes } from 'sequelize';
 import sequelize from '../lib/sequelize';
-import { Address, Quotation } from './';
-class ShippedFrom extends Model {
+import { Invoice, TransportDetail } from '.';
+class InvoiceTransportDetail extends Model {
   public id!: number;
-  public AddressId: Address;
-  public QuotationId: Quotation;
+  public TransportDetailId: TransportDetail;
+  public InvoiceId: Invoice;
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
 }
 
-ShippedFrom.init({
-  AddressId: {
+InvoiceTransportDetail.init({
+  TransportDetailId: {
     type: DataTypes.INTEGER,
     allowNull: true
   },
-  QuotationId: {
+  InvoiceId: {
     type: DataTypes.INTEGER,
     allowNull: true
   }
@@ -24,4 +24,4 @@ ShippedFrom.init({
 
 
 
-export default ShippedFrom;
+export default InvoiceTransportDetail;

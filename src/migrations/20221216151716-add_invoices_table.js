@@ -3,7 +3,7 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
     up:async  (queryInterface, Sequelize) => {
-    return queryInterface.createTable('Quotations', {
+    return queryInterface.createTable('Invoices', {
       id: {
         allowNull: false,
         autoIncrement: true,
@@ -30,11 +30,11 @@ module.exports = {
         onUpdate: 'cascade',
         onDelete: 'cascade' 
       },
-      quotationNo: {
+      invoiceNo: {
         type: Sequelize.STRING,
         allowNull: false,
       },
-      quotationDate: {
+      invoiceDate: {
         type: Sequelize.DATE,
         allowNull: false,
       },
@@ -81,6 +81,6 @@ module.exports = {
     });
   },
   down: async (queryInterface, Sequelize) => {
-    return queryInterface.dropTable('Quotations');
+    return queryInterface.dropTable('Invoices');
   }
 };

@@ -2,10 +2,10 @@ import Sequelize, { Model, DataTypes } from "sequelize";
 import sequelize from "../lib/sequelize";
 import { TransportDetail, Address, ContactDetail, Store, Client, Item, Attachment } from "./";
 
-class Quotation extends Model {
+class Invoice extends Model {
   public id!: number;
-  public quotationNo: string;
-  public quotationDate: Date;
+  public invoiceNo: string;
+  public invoiceDate: Date;
   public subTitle: string;
   public status: string;
   public StoreId!: Store;
@@ -27,23 +27,23 @@ class Quotation extends Model {
   public readonly updatedAt!: Date;
 }
 
-Quotation.init(
+Invoice.init(
   {
-    quotationNo: {
+    invoiceNo: {
       type: DataTypes.STRING,
       allowNull: false,
       validate: {
         notEmpty: {
-          msg: "Quotation Number is required.",
+          msg: "invoice Number is required.",
         },
       }
     },
-    quotationDate: {
+    invoiceDate: {
       type: DataTypes.DATE,
       allowNull: false,
       validate: {
         notEmpty: {
-          msg: "Quotation Date is required.",
+          msg: "invoice Date is required.",
         },
       }
     },
@@ -93,4 +93,4 @@ Quotation.init(
   }
 );
 
-export default Quotation;
+export default Invoice;

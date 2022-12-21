@@ -17,6 +17,19 @@ import Attachment from "./attachment";
 import TransportDetail from "./transportDetail";
 import ContactDetail from "./contactDetail";
 import Item from "./item";
+import QuotationItem from "./quotationItem";
+import QuotationContactDetail from "./quotationContactDetail";
+import QuotationShippedFrom from "./quotationShippedFrom";
+import QuotationShippedTo from "./quotationShippedTo";
+import QuotationTransportDetail from "./quotationTransportDetail";
+import QuotationAttachment from "./quotationAttachment";
+import Invoice from "./invoice";
+import InvoiceAttachment from "./invoiceAttachment";
+import InvoiceContactDetail from "./invoiceContactDetail";
+import InvoiceItem from "./invoiceItem";
+import InvoiceShippedFrom from "./invoiceShippedFrom";
+import InvoiceShippedTo from "./invoiceShippedTo";
+import InvoiceTransportDetail from "./invoiceTransportDetail";
 export {
   User,
   Store,
@@ -37,6 +50,19 @@ export {
   TransportDetail,
   ContactDetail,
   Item,
+  QuotationItem,
+  QuotationShippedTo,
+  QuotationShippedFrom,
+  QuotationAttachment,
+  QuotationTransportDetail,
+  QuotationContactDetail,
+  Invoice,
+  InvoiceItem,
+  InvoiceShippedTo,
+  InvoiceShippedFrom,
+  InvoiceAttachment,
+  InvoiceTransportDetail,
+  InvoiceContactDetail,
 }
 
 export default () => {
@@ -91,6 +117,76 @@ export default () => {
   })
 
 
+  Quotation.belongsToMany(Address, {
+    through: "QuotationShippedFroms",
+    as: "shippedFrom",
+    foreignKey: "QuotationId"
+  })
+
+  Quotation.belongsToMany(Address, {
+    through: "QuotationShippedTos",
+    as: "shippedTo",
+    foreignKey: "QuotationId"
+  })
+
+  Quotation.belongsToMany(TransportDetail, {
+    through: "QuotationTransportDetail",
+    as: "transportDetail",
+    foreignKey: "QuotationId"
+  })
+  Quotation.belongsToMany(ContactDetail, {
+    through: "QuotationContactDetail",
+    as: "contactDetail",
+    foreignKey: "QuotationId"
+  })
+
+  Quotation.belongsToMany(Item, {
+    through: "QuotationItems",
+    as: "items",
+    foreignKey: "QuotationId"
+  })
+
+  Quotation.belongsToMany(Attachment, {
+    through: "QuotationAttachments",
+    as: "attachments",
+    foreignKey: "QuotationId"
+  })
+
+
+  Invoice.belongsToMany(Address, {
+    through: "InvoiceShippedFroms",
+    as: "shippedFrom",
+    foreignKey: "InvoiceId"
+  })
+
+  Invoice.belongsToMany(Address, {
+    through: "InvoiceShippedTos",
+    as: "shippedTo",
+    foreignKey: "InvoiceId"
+  })
+
+  Invoice.belongsToMany(TransportDetail, {
+    through: "InvoiceTransportDetail",
+    as: "transportDetail",
+    foreignKey: "InvoiceId"
+  })
+  Invoice.belongsToMany(ContactDetail, {
+    through: "InvoiceContactDetail",
+    as: "contactDetail",
+    foreignKey: "InvoiceId"
+  })
+
+  Invoice.belongsToMany(Item, {
+    through: "InvoiceItems",
+    as: "items",
+    foreignKey: "InvoiceId"
+  })
+
+  Invoice.belongsToMany(Attachment, {
+    through: "InvoiceAttachments",
+    as: "attachments",
+    foreignKey: "InvoiceId"
+  })
   // Store.hasMany(Quotation)
 
   // Quotation.belongsTo(Store)
