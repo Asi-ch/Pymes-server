@@ -5,7 +5,7 @@ class Invitation extends Model {
   public id!: number;
   public inviteEmail!: string;
   public UserId!: number;
-  public ClientId!: number;
+  public StoreId!: number;
   public status: string;
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
@@ -29,7 +29,7 @@ Invitation.init(
       type: DataTypes.INTEGER,
       allowNull: false,
     },
-    ClientId: {
+    StoreId: {
       type: DataTypes.INTEGER,
       allowNull: false,
     },

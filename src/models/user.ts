@@ -1,7 +1,8 @@
 import Sequelize, { Model, DataTypes } from 'sequelize';
 import sequelize from '../lib/sequelize';
 import bcrypt from 'bcrypt';
-import { UserType, Store, Subscription, UserStore } from './';
+import { UserType, Store, Subscription, UserStore, Address } from './';
+import StoreAddress from './storeAddress';
 
 class User extends Model {
   public id!: number;
@@ -35,6 +36,11 @@ class User extends Model {
           {
             attributes: ['id', 'name', 'description', 'createdAt', 'updatedAt'],
             model: Store,
+            include: [{
+              model: Address,
+              as: 'addresses',
+            },
+            ],
             as: 'stores',
             through: {
               attributes: ['UserId', 'StoreId', 'UserTypeId', 'createdAt', 'updatedAt'],
@@ -43,7 +49,9 @@ class User extends Model {
               }
             },
 
+
           },
+
           Subscription
         ]
       })
@@ -75,7 +83,7 @@ class User extends Model {
           UserId: this.id,
           UserTypeId: userType.id
         },
-        include: [{ attributes: ['id', 'name', 'description', "createdAt", "updatedAt"], model: Store }]
+        include: [{ attributes: ['id', 'name', 'description', "createdAt", "updatedAt"], model: Store, include: [{ model: Address, as: "addresses" }] }]
       })
       return userStore;
     } else {

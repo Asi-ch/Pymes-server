@@ -19,9 +19,9 @@ export class ProductsController {
             .not()
             .isEmpty()
             .withMessage("Description is required"),
-          check("productVariation.*.quantity")
-            .not()
-            .isEmpty(),
+            check("productVariation.*.quantity")
+              .not()
+              .isEmpty(),
 
           check("productVariation.*.cost")
             .not()

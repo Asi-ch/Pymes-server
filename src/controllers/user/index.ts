@@ -180,6 +180,14 @@ export class UserController {
     }
   }
 
+  public async current(req: Request, res: Response) {
+    try {
+      
+      return res.status(200).json({ success: true, data: req.user })
+    } catch (error) {
+      res.status(500).json({ success: false, error })
+    }
+  }
 
   public async listPlans(req: Request, res: Response) {
     try {

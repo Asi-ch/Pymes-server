@@ -17,6 +17,15 @@ export class StoreController {
             .withMessage("Store location is required"),
         ];
       }
+      case "setActiveStore": {
+        return [
+          check("storeId")
+            .not()
+            .isEmpty()
+            .withMessage("Store Id is required"),
+
+        ];
+      }
 
     }
   }
@@ -132,7 +141,19 @@ export class StoreController {
   public async setActiveStore(req: Request, res: Response) {
     try {
       console.log("User id  =>", req.user, req.userId)
-
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(422).json({ success: false, errors: errors.array() });
+      }
+      const user = await User.findOne({ where: { id: req.user.id } })
+      if (user) {
+        await user.update({
+          activeStoreId: req.body.storeId
+        })
+        return res.status(200).json({ success: true, msg: "Active Store fot user updated" })
+      } else {
+        return res.status(422).json({ success: false, msg: "User not found " })
+      }
 
 
     } catch (error) {

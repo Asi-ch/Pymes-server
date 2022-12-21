@@ -21,6 +21,6 @@ export class UserRoutes {
     this.router.get("/get-invoices-history", authMiddleware, this.userController.getInvoicesHistory)
     this.router.get("/get-subscriptions", authMiddleware, this.userController.subscriptions)
     this.router.post("/un-subscribe", authMiddleware, this.userController.validate('unSubscribe'), this.userController.unsubscribe)
-
+    this.router.get('/current', authMiddleware, this.userController.current)
   }
 }

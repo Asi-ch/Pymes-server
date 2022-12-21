@@ -14,7 +14,7 @@ export class StoreRoutes {
   public routes() {
     this.router.post("/create", authMiddleware, this.storeController.validate('createStore'), this.storeController.createStore);
     this.router.post("/update", authMiddleware, this.storeController.updateStore);
-    this.router.post("/set-active-store", authMiddleware, this.storeController.setActiveStore);
+    this.router.post("/set-active-store", authMiddleware, this.storeController.validate('setActiveStore'), this.storeController.setActiveStore);
     this.router.get("/get-all-stores", authMiddleware, this.storeController.getAllAdminStores);
   }
 }
