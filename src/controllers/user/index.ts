@@ -14,6 +14,11 @@ export class UserController {
       case "createUser": {
         return [
           check("email")
+            .not()
+            .isEmpty()
+            .withMessage("Email can't be blank")
+            .isEmail()
+            .withMessage("Email format should be correct")
             .custom(async (value) => {
               const user = await User.findOne({
                 where: {
@@ -23,16 +28,9 @@ export class UserController {
               if (user) {
                 return Promise.reject("Email is already in use");
               }
-            })
-            .not()
-            .isEmpty()
-            .withMessage("Email can't be blank")
-            .isEmail()
-            .withMessage("Email format should be correct"),
+            }),
           check("password")
-            .matches(
-              /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9]).{8,}$/
-            )
+            .matches(/^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9]).{8,}$/)
             .withMessage(
               "Password must includes one uppercase, one lowercase,one digit, min length is 8 and max length is 64"
             ),
@@ -137,7 +135,7 @@ export class UserController {
   public async signIn(req: Request, res: Response) {
     try {
       const errors = validationResult(req);
-      console.log("err", errors)
+      console.log("err", errors);
       if (!errors.isEmpty()) {
         return res.status(422).json({ success: false, errors: errors.array() });
       }
@@ -145,13 +143,11 @@ export class UserController {
       const user = await User.findOne({
         where: {
           email: req.body.email.toLowerCase(),
-        }
+        },
       });
-      console.log("user", user)
+      console.log("user", user);
 
       if (user && bcrypt.compareSync(req.body.password, user.passwordHash)) {
-
-
         const jwtToken = jwt.sign({ sub: user.id }, process.env.JWT_SECRET, {
           expiresIn: process.env.JWT_EXPIRY,
         });
@@ -172,7 +168,7 @@ export class UserController {
         });
       }
     } catch (errors) {
-      console.log("final err", errors)
+      console.log("final err", errors);
       res.status(422).json({
         success: false,
         errors,
@@ -182,10 +178,9 @@ export class UserController {
 
   public async current(req: Request, res: Response) {
     try {
-      
-      return res.status(200).json({ success: true, data: req.user })
+      return res.status(200).json({ success: true, data: req.user });
     } catch (error) {
-      res.status(500).json({ success: false, error })
+      res.status(500).json({ success: false, error });
     }
   }
 
@@ -241,15 +236,14 @@ export class UserController {
 
         await User.update(
           {
-            activeSubscriptionId: subscription.id
+            activeSubscriptionId: subscription.id,
           },
           {
             where: {
               id: req.userId,
             },
-
-          },
-        )
+          }
+        );
 
         return res.json({
           success: true,
@@ -258,7 +252,9 @@ export class UserController {
       } else {
         return res.status(422).json({
           success: false,
-          errors: ["Already have an active subscription please cancel it to resubscribe "],
+          errors: [
+            "Already have an active subscription please cancel it to resubscribe ",
+          ],
         });
       }
     } catch (errors) {
@@ -269,8 +265,6 @@ export class UserController {
       });
     }
   }
-
-
 
   public async createStripeCustomer(req: Request, res: Response) {
     try {
@@ -317,8 +311,7 @@ export class UserController {
               success: false,
               errors: [
                 {
-                  err:
-                    "Unable to create a Charge. Please provide valid card information",
+                  err: "Unable to create a Charge. Please provide valid card information",
                 },
               ],
             });
@@ -428,7 +421,6 @@ export class UserController {
         },
       });
 
-
       if (user.stripeCustomerId) {
         const subscription = await Subscription.findOne({
           where: {
@@ -446,8 +438,8 @@ export class UserController {
           });
 
           await user.update({
-            activeSubscriptionId: null
-          })
+            activeSubscriptionId: null,
+          });
 
           res.json({
             success: true,
@@ -467,8 +459,6 @@ export class UserController {
           errors: ["User doesn't have any valid stripe account"],
         });
       }
-
-
     } catch (errors) {
       res.status(422).json({
         success: false,
@@ -492,5 +482,4 @@ export class UserController {
       });
     }
   }
-
 }

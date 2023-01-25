@@ -1,6 +1,6 @@
 {
   "development": {
-    "username": "zawar",
+    "username": "postgres",
     "password": "12345678",
     "database": "PIMES",
     "host": "127.0.0.1",

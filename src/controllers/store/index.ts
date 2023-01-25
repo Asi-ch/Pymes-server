@@ -7,10 +7,7 @@ export class StoreController {
     switch (method) {
       case "createStore": {
         return [
-          check("name")
-            .not()
-            .isEmpty()
-            .withMessage("Store name is required"),
+          check("name").not().isEmpty().withMessage("Store name is required"),
           check("location")
             .not()
             .isEmpty()
@@ -19,19 +16,14 @@ export class StoreController {
       }
       case "setActiveStore": {
         return [
-          check("storeId")
-            .not()
-            .isEmpty()
-            .withMessage("Store Id is required"),
-
+          check("storeId").not().isEmpty().withMessage("Store Id is required"),
         ];
       }
-
     }
   }
   public async createStore(req: Request, res: Response) {
     try {
-      console.log("User id  =>", req.user, req.userId)
+      console.log("User id  =>", req.user, req.userId);
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
         return res.status(422).json({ success: false, errors: errors.array() });
@@ -40,10 +32,9 @@ export class StoreController {
       let store = await Store.create({
         name: req.body.name,
         description: req.body.description,
-        location: req.body.location
-      })
+        location: req.body.location,
+      });
       if (store) {
-
         let userType = await UserType.findOne({
           where: {
             name: "Admin",
@@ -56,25 +47,25 @@ export class StoreController {
         });
         let userTypeIM = await UserType.findOne({
           where: {
-            name: "InventoryManager"
-          }
-        })
+            name: "InventoryManager",
+          },
+        });
 
         await UserStore.create({
           UserId: req.userId,
           StoreId: store.id,
-          UserTypeId: userType.id
-        })
+          UserTypeId: userType.id,
+        });
         await UserStore.create({
           UserId: req.userId,
           StoreId: store.id,
-          UserTypeId: userTypeSM.id
-        })
+          UserTypeId: userTypeSM.id,
+        });
         await UserStore.create({
           UserId: req.userId,
           StoreId: store.id,
-          UserTypeId: userTypeIM.id
-        })
+          UserTypeId: userTypeIM.id,
+        });
 
         store = await Store.findOne({
           where: {
@@ -86,9 +77,8 @@ export class StoreController {
               as: "user_types",
               // through: { attributes: [''] }
             },
-
           ],
-        })
+        });
 
         if (!req.body.skipOnboarding) {
           const user = await User.findOne({
@@ -112,10 +102,8 @@ export class StoreController {
           errors: [{ param: "err", msg: "Unable to create Store" }],
         });
       }
-
     } catch (error) {
-
-      console.log("Error => ", error)
+      console.log("Error => ", error);
       res.status(500).json({
         success: false,
         error,
@@ -124,13 +112,9 @@ export class StoreController {
   }
   public async updateStore(req: Request, res: Response) {
     try {
-      console.log("User id  =>", req.user, req.activeStoreId)
-
-
-
+      console.log("User id  =>", req.user, req.activeStoreId);
     } catch (error) {
-
-      console.log("Error => ", error)
+      console.log("Error => ", error);
       res.status(500).json({
         success: false,
         error,
@@ -140,24 +124,24 @@ export class StoreController {
 
   public async setActiveStore(req: Request, res: Response) {
     try {
-      console.log("User id  =>", req.user, req.userId)
+      console.log("User id  =>", req.user, req.userId);
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
         return res.status(422).json({ success: false, errors: errors.array() });
       }
-      const user = await User.findOne({ where: { id: req.user.id } })
+      const user = await User.findOne({ where: { id: req.user.id } });
       if (user) {
         await user.update({
-          activeStoreId: req.body.storeId
-        })
-        return res.status(200).json({ success: true, msg: "Active Store fot user updated" })
+          activeStoreId: req.body.storeId,
+        });
+        return res
+          .status(200)
+          .json({ success: true, msg: "Active Store fot user updated" });
       } else {
-        return res.status(422).json({ success: false, msg: "User not found " })
+        return res.status(422).json({ success: false, msg: "User not found " });
       }
-
-
     } catch (error) {
-      console.log("Error => ", error)
+      console.log("Error => ", error);
       res.status(500).json({
         success: false,
         error,
@@ -166,18 +150,16 @@ export class StoreController {
   }
   public async getAllAdminStores(req: Request, res: Response) {
     try {
-      const user = req.user
-      const stores = await user.getAllAdminStores()
+      const user = req.user;
+      const stores = await user.getAllAdminStores();
 
-      console.log("User id  =>", stores)
+      console.log("User id  =>", stores);
       res.json({
         success: true,
         data: stores,
       });
-
-
     } catch (error) {
-      console.log("Error => ", error)
+      console.log("Error => ", error);
       res.status(500).json({
         success: false,
         error,
