@@ -167,6 +167,23 @@ export class ProductsController {
     }
   }
 
+  public async getProductById(req: Request, res: Response) {
+    try {
+      const product = await Product.findOne({
+        where: { id: req.body.productId },
+        include: [ProductVariation],
+      });
+      if (!product)
+        return res
+          .status(404)
+          .json({ success: false, msg: "Product not found ", data: null });
+      return res
+        .status(200)
+        .json({ success: true, msg: "Product found ", data: product });
+    } catch (error) {
+      return res.status(500).json({ success: false, error });
+    }
+  }
   public async updateProductVariation(req: Request, res: Response) {
     try {
       const errors = validationResult(req);
