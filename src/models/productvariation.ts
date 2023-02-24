@@ -1,6 +1,6 @@
-import { DataTypes, Model } from 'sequelize';
-import sequelize from '../lib/sequelize';
-import { Product, } from './';
+import { DataTypes, Model } from "sequelize";
+import sequelize from "../lib/sequelize";
+import { Product } from "./";
 
 class ProductVariation extends Model {
   public id!: number;
@@ -13,31 +13,32 @@ class ProductVariation extends Model {
   public readonly updatedAt!: Date;
 }
 
-ProductVariation.init({
-  ProductId: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
+ProductVariation.init(
+  {
+    ProductId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
+    size: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    color: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    cost: {
+      type: DataTypes.DOUBLE,
+      allowNull: false,
+    },
+    quantity: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
   },
-  size: {
-    type: DataTypes.STRING,
-    allowNull: true,
-  },
-  color: {
-    type: DataTypes.STRING,
-    allowNull: true,
-  },
-  cost: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
-  },
-  quantity: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
-
+  {
+    sequelize,
   }
-}, {
-  sequelize,
-});
-
+);
 
 export default ProductVariation;
