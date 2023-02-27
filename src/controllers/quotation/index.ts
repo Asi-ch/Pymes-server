@@ -1,11 +1,26 @@
 import { Request, Response } from "express";
 import { check, validationResult } from "express-validator";
-import { Address, Attachment, Client, ContactDetail, Item, Quotation, QuotationAttachment, QuotationContactDetail, QuotationItem, QuotationShippedFrom, QuotationShippedTo, QuotationTransportDetail, Store, TransportDetail } from "../../models";
+import {
+  Address,
+  Attachment,
+  Client,
+  ContactDetail,
+  Item,
+  Quotation,
+  QuotationAttachment,
+  QuotationContactDetail,
+  QuotationItem,
+  QuotationShippedFrom,
+  QuotationShippedTo,
+  QuotationTransportDetail,
+  Store,
+  TransportDetail,
+} from "../../models";
 
 export class QuotationController {
   public validate(method: string) {
     switch (method) {
-      case 'create': {
+      case "create": {
         return [
           check("quotationNo")
             .custom(async (value) => {
@@ -32,15 +47,14 @@ export class QuotationController {
           check("items.*.name")
             .not()
             .isEmpty()
-            .withMessage("Items.Name is required")
-          ,
+            .withMessage("Items.Name is required"),
           check("items.*.quantity")
             .not()
             .isEmpty()
-            .withMessage("Items.Quantity is required")
-        ]
+            .withMessage("Items.Quantity is required"),
+        ];
       }
-      case 'update': {
+      case "update": {
         return [
           check("quotationId")
             .custom(async (value) => {
@@ -56,7 +70,7 @@ export class QuotationController {
             .not()
             .isEmpty()
             .withMessage("Quotation Id is required"),
-        ]
+        ];
       }
     }
   }
@@ -73,7 +87,7 @@ export class QuotationController {
         quotationDate: req.body.quotationDate,
         subTitle: req.body.subTitle,
         status: req.body.status,
-        StoreId: req.user.activeStoreId,
+        StoreId: req.body.storeId ? req.body.storeId : req.user.activeStoreId,
         ClientId: req.body.clientId,
         amount: req.body.amount,
         tax: req.body.tax,
@@ -82,31 +96,29 @@ export class QuotationController {
         notes: req.body.notes,
         signature: req.body.signature,
         emailSent: req.body.emailSent,
-      })
-
-
-
+      });
 
       if (quotation) {
-
         if (req.body.items) {
-          await Promise.all(req.body.items.map(async (item) => {
-            const newItem = await Item.create({
-              name: item.name,
-              taxRate: item.taxRate,
-              quantity: item.quantity,
-              rate: item.rate,
-              total: item.total,
-              totalTax: item.totalTax,
-              description: item.description,
+          await Promise.all(
+            req.body.items.map(async (item) => {
+              const newItem = await Item.create({
+                name: item.name,
+                taxRate: item.taxRate,
+                quantity: item.quantity,
+                rate: item.rate,
+                total: item.total,
+                totalTax: item.totalTax,
+                description: item.description,
+              });
+              if (newItem) {
+                await QuotationItem.create({
+                  ItemId: newItem.id,
+                  QuotationId: quotation.id,
+                });
+              }
             })
-            if (newItem) {
-              await QuotationItem.create({
-                ItemId: newItem.id,
-                QuotationId: quotation.id
-              })
-            }
-          }))
+          );
         }
 
         if (req.body.shippedTo) {
@@ -116,13 +128,13 @@ export class QuotationController {
             state: req.body.shippedTo.state,
             street: req.body.shippedTo.street,
             zipCode: req.body.shippedTo.zipCode,
-            streetAddress: req.body.shippedTo.streetAddress
-          })
+            streetAddress: req.body.shippedTo.streetAddress,
+          });
           if (shippedTo) {
             await QuotationShippedTo.create({
               AddressId: shippedTo.id,
-              QuotationId: quotation.id
-            })
+              QuotationId: quotation.id,
+            });
           }
         }
         if (req.body.shippedFrom) {
@@ -132,40 +144,42 @@ export class QuotationController {
             state: req.body.shippedFrom.state,
             street: req.body.shippedFrom.street,
             zipCode: req.body.shippedFrom.zipCode,
-            streetAddress: req.body.shippedFrom.streetAddress
-          })
+            streetAddress: req.body.shippedFrom.streetAddress,
+          });
           if (shippedFrom) {
             await QuotationShippedFrom.create({
               AddressId: shippedFrom.id,
-              QuotationId: quotation.id
-            })
+              QuotationId: quotation.id,
+            });
           }
         }
 
         if (req.body.attachments) {
-          await Promise.all(req.body.attachments.map(async (attachment) => {
-            const newAttachment = await Attachment.create({
-              url: attachment.url,
+          await Promise.all(
+            req.body.attachments.map(async (attachment) => {
+              const newAttachment = await Attachment.create({
+                url: attachment.url,
+              });
+              if (newAttachment) {
+                await QuotationAttachment.create({
+                  AttachmentId: newAttachment.id,
+                  QuotationId: quotation.id,
+                });
+              }
             })
-            if (newAttachment) {
-              await QuotationAttachment.create({
-                AttachmentId: newAttachment.id,
-                QuotationId: quotation.id
-              })
-            }
-          }))
+          );
         }
 
         if (req.body.contactDetail) {
           const contactDetail = await ContactDetail.create({
             email: req.body.contactDetail.email,
-            phoneNumber: req.body.contactDetail.phoneNumber
-          })
+            phoneNumber: req.body.contactDetail.phoneNumber,
+          });
           if (contactDetail) {
             await QuotationContactDetail.create({
               ContactDetailId: contactDetail.id,
-              QuotationId: quotation.id
-            })
+              QuotationId: quotation.id,
+            });
           }
         }
 
@@ -174,53 +188,83 @@ export class QuotationController {
             challanNumber: req.body.transportDetail.challanNumber,
             challanDate: req.body.transportDetail.challanDate,
             name: req.body.transportDetail.name,
-            notes: req.body.transportDetail.notes
-          })
+            notes: req.body.transportDetail.notes,
+          });
           if (transportDetail) {
             await QuotationTransportDetail.create({
               TransportDetailId: transportDetail.id,
-              QuotationId: quotation.id
-            })
+              QuotationId: quotation.id,
+            });
           }
         }
         const quotationUpdated = await Quotation.findOne({
           where: { id: quotation.id },
           include: [
             { model: Item, as: "items", through: { attributes: [] } },
-            { model: Attachment, as: "attachments", through: { attributes: [] } },
-            { model: ContactDetail, as: "contactDetail", through: { attributes: [] } },
-            { model: TransportDetail, as: "transportDetail", through: { attributes: [] } },
+            {
+              model: Attachment,
+              as: "attachments",
+              through: { attributes: [] },
+            },
+            {
+              model: ContactDetail,
+              as: "contactDetail",
+              through: { attributes: [] },
+            },
+            {
+              model: TransportDetail,
+              as: "transportDetail",
+              through: { attributes: [] },
+            },
             { model: Address, as: "shippedTo", through: { attributes: [] } },
             { model: Address, as: "shippedFrom", through: { attributes: [] } },
-          ]
-        })
-        return res.status(200).json({ success: true, data: quotationUpdated, msg: "Quotation created successfully" })
+          ],
+        });
+        return res
+          .status(200)
+          .json({
+            success: true,
+            data: quotationUpdated,
+            msg: "Quotation created successfully",
+          });
       }
     } catch (error) {
-      console.log(error)
-      return res.status(500).json({ success: false, error })
+      console.log(error);
+      return res.status(500).json({ success: false, error });
     }
   }
 
   public async all(req: Request, res: Response) {
     try {
-      const quotations = await Quotation.findAll(
-        {
-          where: { StoreId: req.user.activeStoreId },
-          include: [
-            { model: Item, as: "items", through: { attributes: [] } },
-            { model: Attachment, as: "attachments", through: { attributes: [] } },
-            { model: ContactDetail, as: "contactDetail", through: { attributes: [] } },
-            { model: TransportDetail, as: "transportDetail", through: { attributes: [] } },
-            { model: Address, as: "shippedTo", through: { attributes: [] } },
-            { model: Address, as: "shippedFrom", through: { attributes: [] } },
-          ]
-        }
-      )
+      const quotations = await Quotation.findAll({
+        where: { StoreId: req.user.activeStoreId },
+        include: [
+          { model: Item, as: "items", through: { attributes: [] } },
+          { model: Attachment, as: "attachments", through: { attributes: [] } },
+          {
+            model: ContactDetail,
+            as: "contactDetail",
+            through: { attributes: [] },
+          },
+          {
+            model: TransportDetail,
+            as: "transportDetail",
+            through: { attributes: [] },
+          },
+          { model: Address, as: "shippedTo", through: { attributes: [] } },
+          { model: Address, as: "shippedFrom", through: { attributes: [] } },
+        ],
+      });
 
-      res.status(200).json({ success: quotations.length > 0 ? true : false, msg: "Quotations", data: quotations })
+      res
+        .status(200)
+        .json({
+          success: quotations.length > 0 ? true : false,
+          msg: "Quotations",
+          data: quotations,
+        });
     } catch (error) {
-      return res.status(500).json({ success: false, error })
+      return res.status(500).json({ success: false, error });
     }
   }
 
@@ -231,7 +275,9 @@ export class QuotationController {
         return res.status(422).json({ success: false, errors: errors.array() });
       }
 
-      const quotation = await Quotation.findOne({ where: { id: req.body.quotationId } })
+      const quotation = await Quotation.findOne({
+        where: { id: req.body.quotationId },
+      });
 
       if (quotation) {
         await quotation.update({
@@ -248,14 +294,26 @@ export class QuotationController {
           notes: req.body.notes,
           signature: req.body.signature,
           emailSent: req.body.emailSent,
-        })
+        });
 
-        return res.status(200).json({ success: true, message: "Updated quotation successfully", data: quotation })
+        return res
+          .status(200)
+          .json({
+            success: true,
+            message: "Updated quotation successfully",
+            data: quotation,
+          });
       } else {
-        return res.status(404).json({ success: false, message: "Internal server error ", data: null })
+        return res
+          .status(404)
+          .json({
+            success: false,
+            message: "Internal server error ",
+            data: null,
+          });
       }
     } catch (error) {
-      return res.status(500).json({ success: false, error })
+      return res.status(500).json({ success: false, error });
     }
   }
 }

@@ -33,6 +33,7 @@ export class StoreController {
         name: req.body.name,
         description: req.body.description,
         location: req.body.location,
+        vatNumber: req.body.vatNumber,
       });
       if (store) {
         let userType = await UserType.findOne({

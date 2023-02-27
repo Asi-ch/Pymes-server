@@ -1,8 +1,8 @@
-import Sequelize, { Model, DataTypes } from 'sequelize';
-import sequelize from '../lib/sequelize';
-import bcrypt from 'bcrypt';
-import { UserType, Store, Subscription, UserStore, Address } from './';
-import StoreAddress from './storeAddress';
+import Sequelize, { Model, DataTypes } from "sequelize";
+import sequelize from "../lib/sequelize";
+import bcrypt from "bcrypt";
+import { UserType, Store, Subscription, UserStore, Address } from "./";
+import StoreAddress from "./storeAddress";
 
 class User extends Model {
   public id!: number;
@@ -16,7 +16,7 @@ class User extends Model {
   public fullName: string;
   public stores: Store[];
   public activeSubscriptionId: string;
-  public stripeCustomerId: string
+  public stripeCustomerId: string;
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
 
@@ -24,142 +24,159 @@ class User extends Model {
     try {
       const userType = await UserType.findOne({
         where: {
-          name: "Admin"
-        }
+          name: "Admin",
+        },
       });
-      console.log("User type ===> ", userType, "Id => ", this.id)
       const user = await User.findOne({
         where: {
-          id: this.id
+          id: this.id,
         },
         include: [
           {
-            attributes: ['id', 'name', 'description', 'createdAt', 'updatedAt'],
-            model: Store,
-            include: [{
-              model: Address,
-              as: 'addresses',
-            },
+            attributes: [
+              "id",
+              "name",
+              "description",
+              "location",
+              "vatNumber",
+              "createdAt",
+              "updatedAt",
             ],
-            as: 'stores',
+            model: Store,
+            include: [
+              {
+                model: Address,
+                as: "addresses",
+              },
+            ],
+            as: "stores",
             through: {
-              attributes: ['UserId', 'StoreId', 'UserTypeId', 'createdAt', 'updatedAt'],
+              attributes: [
+                "UserId",
+                "StoreId",
+                "UserTypeId",
+                "createdAt",
+                "updatedAt",
+              ],
               where: {
-                UserTypeId: userType.id
-              }
+                UserTypeId: userType.id,
+              },
             },
-
-
           },
 
-          Subscription
-        ]
-      })
-      return user.stores
-
+          Subscription,
+        ],
+      });
+      return user.stores;
     } catch (error) {
-      console.log(error)
-      return []
+      console.log(error);
+      return [];
     }
   }
   async getSubscriptions(): Promise<Subscription[] | null> {
     return await Subscription.findAll({
       where: {
-        UserId: this.id
+        UserId: this.id,
       },
-    })
+    });
   }
   async getActiveAdminStore(): Promise<UserStore | null> {
     if (this.activeStoreId) {
       const userType = await UserType.findOne({
         where: {
-          name: "Admin"
-        }
+          name: "Admin",
+        },
       });
 
       const userStore = await UserStore.findOne({
         where: {
           StoreId: this.activeStoreId,
           UserId: this.id,
-          UserTypeId: userType.id
+          UserTypeId: userType.id,
         },
-        include: [{ attributes: ['id', 'name', 'description', "createdAt", "updatedAt"], model: Store, include: [{ model: Address, as: "addresses" }] }]
-      })
+        include: [
+          {
+            attributes: ["id", "name", "description", "createdAt", "updatedAt"],
+            model: Store,
+            include: [{ model: Address, as: "addresses" }],
+          },
+        ],
+      });
       return userStore;
     } else {
       return null;
     }
   }
-
 }
 
-
-User.init({
-  email: {
-    type: DataTypes.STRING,
-    allowNull: false,
-    validate: {
-      isEmail: {
-        msg: 'Email is not valid.'
+User.init(
+  {
+    email: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      validate: {
+        isEmail: {
+          msg: "Email is not valid.",
+        },
+        notEmpty: {
+          msg: "Email is required.",
+        },
       },
-      notEmpty: {
-        msg: 'Email is required.'
-      }
-    }
-  },
-  firstName: {
-    type: DataTypes.STRING,
-    validate: {
-      notEmpty: {
-        msg: 'First name is required.'
-      }
-    }
-  },
-  lastName: {
-    type: DataTypes.STRING,
-  },
-  fullName: {
-    type: DataTypes.VIRTUAL,
-    get() {
-      return `${this.firstName} ${this.lastName}`;
     },
-    set(value) {
-      throw new Error('Do not try to set the `fullName` value!');
-    }
+    firstName: {
+      type: DataTypes.STRING,
+      validate: {
+        notEmpty: {
+          msg: "First name is required.",
+        },
+      },
+    },
+    lastName: {
+      type: DataTypes.STRING,
+    },
+    fullName: {
+      type: DataTypes.VIRTUAL,
+      get() {
+        return `${this.firstName} ${this.lastName}`;
+      },
+      set(value) {
+        throw new Error("Do not try to set the `fullName` value!");
+      },
+    },
+    password: {
+      type: DataTypes.VIRTUAL,
+    },
+    passwordHash: {
+      type: DataTypes.STRING,
+    },
+    emailVerified: {
+      type: DataTypes.BOOLEAN,
+    },
+    activeStoreId: {
+      type: DataTypes.INTEGER,
+    },
+    activeSubscriptionId: {
+      type: DataTypes.STRING,
+    },
+    stripeCustomerId: {
+      type: DataTypes.STRING,
+    },
   },
-  password: {
-    type: DataTypes.VIRTUAL
-  },
-  passwordHash: {
-    type: DataTypes.STRING
-  },
-  emailVerified: {
-    type: DataTypes.BOOLEAN
-  },
-  activeStoreId: {
-    type: DataTypes.INTEGER
-  },
-  activeSubscriptionId: {
-    type: DataTypes.STRING
-  },
-  stripeCustomerId: {
-    type: DataTypes.STRING
+  {
+    sequelize,
   }
-}, {
-  sequelize,
-});
+);
 
 User.beforeCreate((user, options) => {
   if (user.password) {
-    user.passwordHash = bcrypt.hashSync(user.password, 10)
+    user.passwordHash = bcrypt.hashSync(user.password, 10);
   }
-})
+});
 
 User.beforeUpdate((user, options) => {
   if (user.password) {
-    user.passwordHash = bcrypt.hashSync(user.password, 10)
+    user.passwordHash = bcrypt.hashSync(user.password, 10);
   }
-})
-
+});
 
 export default User;
