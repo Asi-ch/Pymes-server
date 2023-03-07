@@ -1,86 +1,94 @@
-'use strict';
+"use strict";
 
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
-    up:async  (queryInterface, Sequelize) => {
-    return queryInterface.createTable('Quotations', {
+  up: async (queryInterface, Sequelize) => {
+    return queryInterface.createTable("Bills", {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
       },
-      StoreId:{
+      StoreId: {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
-          model: 'Stores',
-          key: 'id'
+          model: "Stores",
+          key: "id",
         },
-        onUpdate: 'cascade',
-        onDelete: 'cascade' 
+        onUpdate: "cascade",
+        onDelete: "cascade",
       },
-      ClientId:{
+      ClientId: {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
-          model: 'Clients',
-          key: 'id'
+          model: "Clients",
+          key: "id",
         },
-        onUpdate: 'cascade',
-        onDelete: 'cascade' 
+        onUpdate: "cascade",
+        onDelete: "cascade",
       },
-      quotationNo: {
+      billNo: {
         type: Sequelize.STRING,
         allowNull: false,
       },
-      quotationDate: {
+      billDate: {
         type: Sequelize.DATE,
+        allowNull: false,
+      },
+      billType: {
+        type: Sequelize.ENUM("invoice", "quotation"),
         allowNull: false,
       },
       subTitle: {
         type: Sequelize.STRING,
-        allowNull: true
+        allowNull: true,
       },
       status: {
         type: Sequelize.STRING,
-        allowNull: false
+        allowNull: false,
       },
       amount: {
         type: Sequelize.FLOAT,
-        allowNull: false
+        allowNull: false,
       },
       tax: {
         type: Sequelize.FLOAT,
-        allowNull: true
+        allowNull: true,
       },
       discount: {
         type: Sequelize.FLOAT,
-        allowNull: true
+        allowNull: true,
       },
       termsAndConditions: {
-        type: Sequelize.STRING, allowNull: true
+        type: Sequelize.STRING,
+        allowNull: true,
       },
       notes: {
-        type: Sequelize.STRING, allowNull: true
+        type: Sequelize.STRING,
+        allowNull: true,
       },
       signature: {
-        type: Sequelize.STRING, allowNull: true
+        type: Sequelize.STRING,
+        allowNull: true,
       },
       emailSent: {
-         type: Sequelize.BOOLEAN, allowNull: true
+        type: Sequelize.BOOLEAN,
+        allowNull: true,
       },
       createdAt: {
         allowNull: false,
-        type: Sequelize.DATE
+        type: Sequelize.DATE,
       },
       updatedAt: {
         allowNull: false,
-        type: Sequelize.DATE
-      }
+        type: Sequelize.DATE,
+      },
     });
   },
   down: async (queryInterface, Sequelize) => {
-    return queryInterface.dropTable('Quotations');
-  }
+    return queryInterface.dropTable("Quotations");
+  },
 };

@@ -3,7 +3,7 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    return queryInterface.createTable("BillShippedFroms", {
+    return queryInterface.createTable("BillTransportDetails", {
       id: {
         allowNull: false,
         autoIncrement: true,
@@ -20,11 +20,11 @@ module.exports = {
         onUpdate: "cascade",
         onDelete: "cascade",
       },
-      AddressId: {
+      TransportDetailId: {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
-          model: "Addresses",
+          model: "TransportDetails",
           key: "id",
         },
         onUpdate: "cascade",
@@ -41,6 +41,6 @@ module.exports = {
     });
   },
   down: async (queryInterface, Sequelize) => {
-    return queryInterface.dropTable("BillShippedFroms");
+    return queryInterface.dropTable("BillTransportDetails");
   },
 };

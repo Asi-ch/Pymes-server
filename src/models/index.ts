@@ -1,5 +1,5 @@
 import User from "./user";
-import Store from "./store"
+import Store from "./store";
 import Invitation from "./invitation";
 import UserStore from "./userstore";
 import UserType from "./usertype";
@@ -10,26 +10,19 @@ import Category from "./category";
 import Client from "./client";
 import StoreProfile from "./storeProfile";
 import Address from "./address";
-import Quotation from "./quotation";
+import Bill from "./bill";
 import ClientAddress from "./clientAddress";
 import StoreAddress from "./storeAddress";
 import Attachment from "./attachment";
 import TransportDetail from "./transportDetail";
 import ContactDetail from "./contactDetail";
 import Item from "./item";
-import QuotationItem from "./quotationItem";
-import QuotationContactDetail from "./quotationContactDetail";
-import QuotationShippedFrom from "./quotationShippedFrom";
-import QuotationShippedTo from "./quotationShippedTo";
-import QuotationTransportDetail from "./quotationTransportDetail";
-import QuotationAttachment from "./quotationAttachment";
-import Invoice from "./invoice";
-import InvoiceAttachment from "./invoiceAttachment";
-import InvoiceContactDetail from "./invoiceContactDetail";
-import InvoiceItem from "./invoiceItem";
-import InvoiceShippedFrom from "./invoiceShippedFrom";
-import InvoiceShippedTo from "./invoiceShippedTo";
-import InvoiceTransportDetail from "./invoiceTransportDetail";
+import BillItem from "./billItem";
+import BillContactDetail from "./billContactDetail";
+import BillShippedFrom from "./billShippedFrom";
+import BillShippedTo from "./billShippedTo";
+import BillTransportDetail from "./billTransportDetail";
+import BillAttachment from "./billAttachment";
 export {
   User,
   Store,
@@ -43,30 +36,22 @@ export {
   Client,
   StoreProfile,
   Address,
-  Quotation,
+  Bill,
   ClientAddress,
   StoreAddress,
   Attachment,
   TransportDetail,
   ContactDetail,
   Item,
-  QuotationItem,
-  QuotationShippedTo,
-  QuotationShippedFrom,
-  QuotationAttachment,
-  QuotationTransportDetail,
-  QuotationContactDetail,
-  Invoice,
-  InvoiceItem,
-  InvoiceShippedTo,
-  InvoiceShippedFrom,
-  InvoiceAttachment,
-  InvoiceTransportDetail,
-  InvoiceContactDetail,
-}
+  BillItem,
+  BillShippedTo,
+  BillShippedFrom,
+  BillAttachment,
+  BillTransportDetail,
+  BillContactDetail,
+};
 
 export default () => {
-
   //User Associations
   User.hasMany(Invitation);
   User.belongsToMany(Store, {
@@ -79,7 +64,7 @@ export default () => {
     as: "user_types",
     foreignKey: "UserId",
   });
-  User.hasMany(Subscription)
+  User.hasMany(Subscription);
 
   // Invitation Associations
   Invitation.belongsTo(User);
@@ -96,105 +81,68 @@ export default () => {
     as: "user_types",
     foreignKey: "StoreId",
   });
-  Store.hasMany(Product)
-  Store.hasMany(Category)
-  Store.hasMany(Client)
+  Store.hasMany(Product);
+  Store.hasMany(Category);
+  Store.hasMany(Client);
 
   //Product Associations
-  Product.hasMany(ProductVariation)
-  Product.belongsTo(Category)
-  Product.belongsTo(Store)
+  Product.hasMany(ProductVariation);
+  Product.belongsTo(Category);
+  Product.belongsTo(Store);
   //Category Associations
-  Category.hasMany(Product)
-  Category.belongsTo(Store)
-  ProductVariation.belongsTo(Product)
-
+  Category.hasMany(Product);
+  Category.belongsTo(Store);
+  ProductVariation.belongsTo(Product);
 
   Client.belongsToMany(Address, {
     through: "ClientAddresses",
     as: "addresses",
-    foreignKey: "ClientId"
-  })
+    foreignKey: "ClientId",
+  });
 
-
-  Quotation.belongsToMany(Address, {
-    through: "QuotationShippedFroms",
+  Bill.belongsToMany(Address, {
+    through: "BillShippedFroms",
     as: "shippedFrom",
-    foreignKey: "QuotationId"
-  })
+    foreignKey: "BillId",
+  });
 
-  Quotation.belongsToMany(Address, {
-    through: "QuotationShippedTos",
+  Bill.belongsToMany(Address, {
+    through: "BillShippedTos",
     as: "shippedTo",
-    foreignKey: "QuotationId"
-  })
+    foreignKey: "BillId",
+  });
 
-  Quotation.belongsToMany(TransportDetail, {
-    through: "QuotationTransportDetail",
+  Bill.belongsToMany(TransportDetail, {
+    through: "BillTransportDetail",
     as: "transportDetail",
-    foreignKey: "QuotationId"
-  })
-  Quotation.belongsToMany(ContactDetail, {
-    through: "QuotationContactDetail",
+    foreignKey: "BillId",
+  });
+  Bill.belongsToMany(ContactDetail, {
+    through: "BillContactDetail",
     as: "contactDetail",
-    foreignKey: "QuotationId"
-  })
+    foreignKey: "BillId",
+  });
 
-  Quotation.belongsToMany(Item, {
-    through: "QuotationItems",
+  Bill.belongsToMany(Item, {
+    through: "BillItems",
     as: "items",
-    foreignKey: "QuotationId"
-  })
+    foreignKey: "BillId",
+  });
 
-  Quotation.belongsToMany(Attachment, {
-    through: "QuotationAttachments",
+  Bill.belongsToMany(Attachment, {
+    through: "BillAttachments",
     as: "attachments",
-    foreignKey: "QuotationId"
-  })
+    foreignKey: "BillId",
+  });
 
+  // Store.hasMany(Bill)
 
-  Invoice.belongsToMany(Address, {
-    through: "InvoiceShippedFroms",
-    as: "shippedFrom",
-    foreignKey: "InvoiceId"
-  })
-
-  Invoice.belongsToMany(Address, {
-    through: "InvoiceShippedTos",
-    as: "shippedTo",
-    foreignKey: "InvoiceId"
-  })
-
-  Invoice.belongsToMany(TransportDetail, {
-    through: "InvoiceTransportDetail",
-    as: "transportDetail",
-    foreignKey: "InvoiceId"
-  })
-  Invoice.belongsToMany(ContactDetail, {
-    through: "InvoiceContactDetail",
-    as: "contactDetail",
-    foreignKey: "InvoiceId"
-  })
-
-  Invoice.belongsToMany(Item, {
-    through: "InvoiceItems",
-    as: "items",
-    foreignKey: "InvoiceId"
-  })
-
-  Invoice.belongsToMany(Attachment, {
-    through: "InvoiceAttachments",
-    as: "attachments",
-    foreignKey: "InvoiceId"
-  })
-  // Store.hasMany(Quotation)
-
-  // Quotation.belongsTo(Store)
-  // Quotation.belongsTo(Client)
+  // Bill.belongsTo(Store)
+  // Bill.belongsTo(Client)
 
   Store.belongsToMany(Address, {
     through: "StoreAddresses",
     as: "addresses",
-    foreignKey: "StoreId"
-  })
-}
+    foreignKey: "StoreId",
+  });
+};

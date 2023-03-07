@@ -7,3 +7,8 @@ export enum StoreTypeEnum {
   INDIVIDUAL = "INDIVIDUAL",
   TEAM = "TEAM",
 }
+
+export enum BillType {
+  INVOICE = "invoice",
+  Quotation = "quotation",
+}

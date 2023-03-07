@@ -1,7 +1,5 @@
-import Sequelize, { Model, DataTypes } from 'sequelize';
-import sequelize from '../lib/sequelize';
-import { Product, Quotation, User } from '.';
-
+import { DataTypes, Model } from "sequelize";
+import sequelize from "../lib/sequelize";
 
 class TransportDetail extends Model {
   public id!: number;
@@ -13,26 +11,28 @@ class TransportDetail extends Model {
   public readonly updatedAt!: Date;
 }
 
-TransportDetail.init({
-  challanNumber: {
-    type: DataTypes.STRING,
-    allowNull: true,
-
+TransportDetail.init(
+  {
+    challanNumber: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    challanDate: {
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
+    name: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    notes: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
   },
-  challanDate: {
-    type: DataTypes.DATE,
-    allowNull: true,
-  },
-  name: {
-    type: DataTypes.STRING,
-    allowNull: true,
-  },
-  notes: {
-    type: DataTypes.STRING,
-    allowNull: true,
-  },
-}, {
-  sequelize,
-});
+  {
+    sequelize,
+  }
+);
 
 export default TransportDetail;

@@ -1,18 +1,19 @@
 import { Request, Response } from "express";
 import { check, validationResult } from "express-validator";
+import { BillType } from "../../lib/types";
 import {
   Address,
   Attachment,
+  Bill,
+  BillAttachment,
+  BillContactDetail,
+  BillItem,
+  BillShippedFrom,
+  BillShippedTo,
+  BillTransportDetail,
   Client,
   ContactDetail,
   Item,
-  Quotation,
-  QuotationAttachment,
-  QuotationContactDetail,
-  QuotationItem,
-  QuotationShippedFrom,
-  QuotationShippedTo,
-  QuotationTransportDetail,
   Store,
   TransportDetail,
 } from "../../models";
@@ -24,13 +25,13 @@ export class QuotationController {
         return [
           check("quotationNo")
             .custom(async (value) => {
-              const quotation = await Quotation.findOne({
+              const bill = await Bill.findOne({
                 where: {
-                  quotationNo: value,
+                  billNo: value,
                 },
               });
-              if (quotation) {
-                return Promise.reject("quotation number is already in use");
+              if (bill) {
+                return Promise.reject("Bill number is already in use");
               }
             })
             .not()
@@ -58,12 +59,12 @@ export class QuotationController {
         return [
           check("quotationId")
             .custom(async (value) => {
-              const quotation = await Quotation.findOne({
+              const bill = await Bill.findOne({
                 where: {
                   id: value,
                 },
               });
-              if (!quotation) {
+              if (!bill) {
                 return Promise.reject("quotation id is invalid");
               }
             })
@@ -82,9 +83,10 @@ export class QuotationController {
         return res.status(422).json({ success: false, errors: errors.array() });
       }
 
-      const quotation = await Quotation.create({
-        quotationNo: req.body.quotationNo,
-        quotationDate: req.body.quotationDate,
+      const quotation = await Bill.create({
+        billNo: req.body.quotationNo,
+        billDate: req.body.quotationDate,
+        billType: BillType.Quotation,
         subTitle: req.body.subTitle,
         status: req.body.status,
         StoreId: req.body.storeId ? req.body.storeId : req.user.activeStoreId,
@@ -112,9 +114,9 @@ export class QuotationController {
                 description: item.description,
               });
               if (newItem) {
-                await QuotationItem.create({
+                await BillItem.create({
                   ItemId: newItem.id,
-                  QuotationId: quotation.id,
+                  BillId: quotation.id,
                 });
               }
             })
@@ -131,9 +133,9 @@ export class QuotationController {
             streetAddress: req.body.shippedTo.streetAddress,
           });
           if (shippedTo) {
-            await QuotationShippedTo.create({
+            await BillShippedTo.create({
               AddressId: shippedTo.id,
-              QuotationId: quotation.id,
+              BillId: quotation.id,
             });
           }
         }
@@ -147,9 +149,9 @@ export class QuotationController {
             streetAddress: req.body.shippedFrom.streetAddress,
           });
           if (shippedFrom) {
-            await QuotationShippedFrom.create({
+            await BillShippedFrom.create({
               AddressId: shippedFrom.id,
-              QuotationId: quotation.id,
+              BillId: quotation.id,
             });
           }
         }
@@ -161,9 +163,9 @@ export class QuotationController {
                 url: attachment.url,
               });
               if (newAttachment) {
-                await QuotationAttachment.create({
+                await BillAttachment.create({
                   AttachmentId: newAttachment.id,
-                  QuotationId: quotation.id,
+                  BillId: quotation.id,
                 });
               }
             })
@@ -176,9 +178,9 @@ export class QuotationController {
             phoneNumber: req.body.contactDetail.phoneNumber,
           });
           if (contactDetail) {
-            await QuotationContactDetail.create({
+            await BillContactDetail.create({
               ContactDetailId: contactDetail.id,
-              QuotationId: quotation.id,
+              BillId: quotation.id,
             });
           }
         }
@@ -191,13 +193,13 @@ export class QuotationController {
             notes: req.body.transportDetail.notes,
           });
           if (transportDetail) {
-            await QuotationTransportDetail.create({
+            await BillTransportDetail.create({
               TransportDetailId: transportDetail.id,
-              QuotationId: quotation.id,
+              BillId: quotation.id,
             });
           }
         }
-        const quotationUpdated = await Quotation.findOne({
+        const quotationUpdated = await Bill.findOne({
           where: { id: quotation.id },
           include: [
             { model: Item, as: "items", through: { attributes: [] } },
@@ -220,13 +222,11 @@ export class QuotationController {
             { model: Address, as: "shippedFrom", through: { attributes: [] } },
           ],
         });
-        return res
-          .status(200)
-          .json({
-            success: true,
-            data: quotationUpdated,
-            msg: "Quotation created successfully",
-          });
+        return res.status(200).json({
+          success: true,
+          data: quotationUpdated,
+          msg: "Quotation created successfully",
+        });
       }
     } catch (error) {
       console.log(error);
@@ -236,8 +236,11 @@ export class QuotationController {
 
   public async all(req: Request, res: Response) {
     try {
-      const quotations = await Quotation.findAll({
-        where: { StoreId: req.user.activeStoreId },
+      const quotations = await Bill.findAll({
+        where: {
+          StoreId: req.user.activeStoreId,
+          billType: BillType.Quotation,
+        },
         include: [
           { model: Item, as: "items", through: { attributes: [] } },
           { model: Attachment, as: "attachments", through: { attributes: [] } },
@@ -256,13 +259,11 @@ export class QuotationController {
         ],
       });
 
-      res
-        .status(200)
-        .json({
-          success: quotations.length > 0 ? true : false,
-          msg: "Quotations",
-          data: quotations,
-        });
+      res.status(200).json({
+        success: quotations.length > 0 ? true : false,
+        msg: "Quotations",
+        data: quotations,
+      });
     } catch (error) {
       return res.status(500).json({ success: false, error });
     }
@@ -275,8 +276,8 @@ export class QuotationController {
         return res.status(422).json({ success: false, errors: errors.array() });
       }
 
-      const quotation = await Quotation.findOne({
-        where: { id: req.body.quotationId },
+      const quotation = await Bill.findOne({
+        where: { id: req.body.billId },
       });
 
       if (quotation) {
@@ -296,21 +297,17 @@ export class QuotationController {
           emailSent: req.body.emailSent,
         });
 
-        return res
-          .status(200)
-          .json({
-            success: true,
-            message: "Updated quotation successfully",
-            data: quotation,
-          });
+        return res.status(200).json({
+          success: true,
+          message: "Updated quotation successfully",
+          data: quotation,
+        });
       } else {
-        return res
-          .status(404)
-          .json({
-            success: false,
-            message: "Internal server error ",
-            data: null,
-          });
+        return res.status(404).json({
+          success: false,
+          message: "Internal server error ",
+          data: null,
+        });
       }
     } catch (error) {
       return res.status(500).json({ success: false, error });

@@ -1,18 +1,19 @@
 import { Request, Response } from "express";
 import { check, validationResult } from "express-validator";
+import { BillType } from "../../lib/types";
 import {
   Address,
   Attachment,
+  Bill,
+  BillAttachment,
+  BillContactDetail,
+  BillItem,
+  BillShippedFrom,
+  BillShippedTo,
+  BillTransportDetail,
   Client,
   ContactDetail,
   Item,
-  Invoice,
-  InvoiceAttachment,
-  InvoiceContactDetail,
-  InvoiceItem,
-  InvoiceShippedFrom,
-  InvoiceShippedTo,
-  InvoiceTransportDetail,
   Store,
   TransportDetail,
 } from "../../models";
@@ -24,9 +25,9 @@ export class InvoiceController {
         return [
           check("invoiceNo")
             .custom(async (value) => {
-              const invoice = await Invoice.findOne({
+              const invoice = await Bill.findOne({
                 where: {
-                  invoiceNo: value,
+                  billNo: value,
                 },
               });
               if (invoice) {
@@ -58,7 +59,7 @@ export class InvoiceController {
         return [
           check("invoiceId")
             .custom(async (value) => {
-              const invoice = await Invoice.findOne({
+              const invoice = await Bill.findOne({
                 where: {
                   id: value,
                 },
@@ -82,9 +83,10 @@ export class InvoiceController {
         return res.status(422).json({ success: false, errors: errors.array() });
       }
 
-      const invoice = await Invoice.create({
-        invoiceNo: req.body.invoiceNo,
-        invoiceDate: req.body.invoiceDate,
+      const invoice = await Bill.create({
+        billNo: req.body.invoiceNo,
+        billDate: req.body.invoiceDate,
+        billType: BillType.INVOICE,
         subTitle: req.body.subTitle,
         status: req.body.status,
         StoreId: req.body.storeId ? req.body.storeId : req.user.activeStoreId,
@@ -112,9 +114,9 @@ export class InvoiceController {
                 description: item.description,
               });
               if (newItem) {
-                await InvoiceItem.create({
+                await BillItem.create({
                   ItemId: newItem.id,
-                  InvoiceId: invoice.id,
+                  BillId: invoice.id,
                 });
               }
             })
@@ -131,9 +133,9 @@ export class InvoiceController {
             streetAddress: req.body.shippedTo.streetAddress,
           });
           if (shippedTo) {
-            await InvoiceShippedTo.create({
+            await BillShippedTo.create({
               AddressId: shippedTo.id,
-              InvoiceId: invoice.id,
+              BillId: invoice.id,
             });
           }
         }
@@ -147,9 +149,9 @@ export class InvoiceController {
             streetAddress: req.body.shippedFrom.streetAddress,
           });
           if (shippedFrom) {
-            await InvoiceShippedFrom.create({
+            await BillShippedFrom.create({
               AddressId: shippedFrom.id,
-              InvoiceId: invoice.id,
+              BillId: invoice.id,
             });
           }
         }
@@ -161,9 +163,9 @@ export class InvoiceController {
                 url: attachment.url,
               });
               if (newAttachment) {
-                await InvoiceAttachment.create({
+                await BillAttachment.create({
                   AttachmentId: newAttachment.id,
-                  InvoiceId: invoice.id,
+                  BillId: invoice.id,
                 });
               }
             })
@@ -176,9 +178,9 @@ export class InvoiceController {
             phoneNumber: req.body.contactDetail.phoneNumber,
           });
           if (contactDetail) {
-            await InvoiceContactDetail.create({
+            await BillContactDetail.create({
               ContactDetailId: contactDetail.id,
-              InvoiceId: invoice.id,
+              BillId: invoice.id,
             });
           }
         }
@@ -191,13 +193,13 @@ export class InvoiceController {
             notes: req.body.transportDetail.notes,
           });
           if (transportDetail) {
-            await InvoiceTransportDetail.create({
+            await BillTransportDetail.create({
               TransportDetailId: transportDetail.id,
-              InvoiceId: invoice.id,
+              BillId: invoice.id,
             });
           }
         }
-        const invoiceUpdated = await Invoice.findOne({
+        const invoiceUpdated = await Bill.findOne({
           where: { id: invoice.id },
           include: [
             { model: Item, as: "items", through: { attributes: [] } },
@@ -220,13 +222,11 @@ export class InvoiceController {
             { model: Address, as: "shippedFrom", through: { attributes: [] } },
           ],
         });
-        return res
-          .status(200)
-          .json({
-            success: true,
-            data: invoiceUpdated,
-            msg: "Invoice created successfully",
-          });
+        return res.status(200).json({
+          success: true,
+          data: invoiceUpdated,
+          msg: "Invoice created successfully",
+        });
       }
     } catch (error) {
       console.log(error);
@@ -236,8 +236,8 @@ export class InvoiceController {
 
   public async all(req: Request, res: Response) {
     try {
-      const invoices = await Invoice.findAll({
-        where: { StoreId: req.user.activeStoreId },
+      const invoices = await Bill.findAll({
+        where: { StoreId: req.user.activeStoreId, billType: BillType.INVOICE },
         include: [
           { model: Item, as: "items", through: { attributes: [] } },
           { model: Attachment, as: "attachments", through: { attributes: [] } },
@@ -256,13 +256,11 @@ export class InvoiceController {
         ],
       });
 
-      res
-        .status(200)
-        .json({
-          success: invoices.length > 0 ? true : false,
-          msg: "Invoices",
-          data: invoices,
-        });
+      res.status(200).json({
+        success: invoices.length > 0 ? true : false,
+        msg: "Invoices",
+        data: invoices,
+      });
     } catch (error) {
       return res.status(500).json({ success: false, error });
     }
@@ -275,14 +273,14 @@ export class InvoiceController {
         return res.status(422).json({ success: false, errors: errors.array() });
       }
 
-      const invoice = await Invoice.findOne({
+      const invoice = await Bill.findOne({
         where: { id: req.body.invoiceId },
       });
 
       if (invoice) {
         await invoice.update({
-          invoiceNo: req.body.invoiceNo,
-          invoiceDate: req.body.invoiceDate,
+          billNo: req.body.invoiceNo,
+          billDate: req.body.invoiceDate,
           subTitle: req.body.subTitle,
           status: req.body.status,
           StoreId: req.user.activeStoreId,
@@ -296,21 +294,17 @@ export class InvoiceController {
           emailSent: req.body.emailSent,
         });
 
-        return res
-          .status(200)
-          .json({
-            success: true,
-            message: "Updated Invoice successfully",
-            data: Invoice,
-          });
+        return res.status(200).json({
+          success: true,
+          message: "Updated Invoice successfully",
+          data: invoice,
+        });
       } else {
-        return res
-          .status(404)
-          .json({
-            success: false,
-            message: "Internal server error ",
-            data: null,
-          });
+        return res.status(404).json({
+          success: false,
+          message: "Internal server error ",
+          data: null,
+        });
       }
     } catch (error) {
       console.log(error);

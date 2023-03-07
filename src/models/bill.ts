@@ -1,11 +1,20 @@
 import Sequelize, { Model, DataTypes } from "sequelize";
 import sequelize from "../lib/sequelize";
-import { TransportDetail, Address, ContactDetail, Store, Client, Item, Attachment } from "./";
+import {
+  TransportDetail,
+  Address,
+  ContactDetail,
+  Store,
+  Client,
+  Item,
+  Attachment,
+} from ".";
+import { BillType } from "../lib/types";
 
-class Invoice extends Model {
+class Bill extends Model {
   public id!: number;
-  public invoiceNo: string;
-  public invoiceDate: Date;
+  public billNo: string;
+  public billDate: Date;
   public subTitle: string;
   public status: string;
   public StoreId!: Store;
@@ -18,7 +27,8 @@ class Invoice extends Model {
   public tax: number;
   public discount: number;
   public termsAndConditions: string;
-  public notes: string
+  public notes: string;
+  public billType: BillType;
   public attachments: Attachment[];
   public signature: string;
   public contactDetail: ContactDetail[];
@@ -27,70 +37,79 @@ class Invoice extends Model {
   public readonly updatedAt!: Date;
 }
 
-Invoice.init(
+Bill.init(
   {
-    invoiceNo: {
+    billNo: {
       type: DataTypes.STRING,
       allowNull: false,
       validate: {
         notEmpty: {
-          msg: "invoice Number is required.",
+          msg: "bill Number is required.",
         },
-      }
+      },
     },
-    invoiceDate: {
+    billDate: {
       type: DataTypes.DATE,
       allowNull: false,
       validate: {
         notEmpty: {
-          msg: "invoice Date is required.",
+          msg: "bill Date is required.",
         },
-      }
+      },
+    },
+    billType: {
+      type: DataTypes.ENUM,
+      values: [BillType.INVOICE, BillType.Quotation],
+      allowNull: false,
     },
     subTitle: {
       type: DataTypes.STRING,
-      allowNull: true
+      allowNull: true,
     },
     StoreId: {
       type: DataTypes.INTEGER,
-      allowNull: false
+      allowNull: false,
     },
     ClientId: {
       type: DataTypes.INTEGER,
-      allowNull: false
+      allowNull: false,
     },
     status: {
       type: DataTypes.STRING,
-      allowNull: false
+      allowNull: false,
     },
     amount: {
       type: DataTypes.FLOAT,
-      allowNull: false
+      allowNull: false,
     },
     tax: {
       type: DataTypes.FLOAT,
-      allowNull: true
+      allowNull: true,
     },
     discount: {
       type: DataTypes.FLOAT,
-      allowNull: true
+      allowNull: true,
     },
     termsAndConditions: {
-      type: DataTypes.STRING, allowNull: true
+      type: DataTypes.STRING,
+      allowNull: true,
     },
     notes: {
-      type: DataTypes.STRING, allowNull: true
+      type: DataTypes.STRING,
+      allowNull: true,
     },
     signature: {
-      type: DataTypes.STRING, allowNull: true
+      type: DataTypes.STRING,
+      allowNull: true,
     },
     emailSent: {
-      type: DataTypes.BOOLEAN, allowNull: true
-    }
+      type: DataTypes.BOOLEAN,
+      allowNull: true,
+    },
   },
   {
     sequelize,
   }
 );
 
-export default Invoice;
+export default Bill;
